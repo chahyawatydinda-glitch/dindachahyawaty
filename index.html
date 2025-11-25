@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Keuangan PKL - Dinas Tenaga Kerja & Transmigrasi Kabupaten Wajo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+            color: #333; 
+            min-height: 100vh; 
+        }
+        .header { 
+            background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 2em; 
+            font-weight: 700; 
+        }
+        .header p { 
+            margin: 5px 0 0; 
+            font-weight: 300; 
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 20px auto; 
+            padding: 20px; 
+        }
+        .dashboard { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px; 
+        }
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1); 
+            transition: transform 0.3s; 
+        }
+        .card:hover { 
+            transform: translateY(-5px); 
+        }
+        .card h3 { 
+            margin-top: 0; 
+            color: #1976d2; 
+            font-weight: 500; 
+        }
+        form { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        form input, form select { 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px; 
+        }
+        button { 
+            padding: 12px; 
+            background: #1976d2; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: background 0.3s; 
+        }
+        button:hover { 
+            background: #0d47a1; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background: white; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        th, td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid #eee; 
+        }
+        th { 
+            background: #1976d2; 
+            color: white; 
+            font-weight: 500; 
+        }
+        .chart-container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            margin-top: 20px; 
+        }
+        .chart-container h3 { 
+            text-align: center; 
+            color: #1976d2; 
+            margin-bottom: 15px; 
+        }
+        .summary { 
+            display: flex; 
+            justify-content: space-around; 
+            margin-bottom: 20px; 
+        }
+        .summary div { 
+            text-align: center; 
+            padding: 10px; 
+            background: #e3f2fd; 
+            border-radius: 8px; 
+            flex: 1; 
+            margin: 0 5px; 
+        }
+        .summary h4 { 
+            margin: 0; 
+            color: #1976d2; 
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard Keuangan PKL</h1>
+        <p>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Wajo - Bidang Keuangan</p>
+    </div>
+    
+    <div class="container">
+        <div class="summary">
+            <div>
+                <h4>Total Pemasukan</h4>
+                <p id="totalIncome">0 Rp</p>
+            </div>
+            <div>
+                <h4>Total Pengeluaran</h4>
+                <p id="totalExpense">0 Rp</p>
+            </div>
+            <div>
+                <h4>Saldo Bersih</h4>
+                <p id="netBalance">0 Rp</p>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h3>Tambah Transaksi</h3>
+                <form id="transactionForm">
+                    <select id="type" required>
+                        <option value="">Pilih Tipe</option>
+                        <option value="income">Pemasukan</option>
+                        <option value="expense">Pengeluaran</option>
+                    </select>
+                    <input type="text" id="description" placeholder="Deskripsi (e.g., Gaji Karyawan, Biaya Transport)" required>
+                    <input type="number" id="amount" placeholder="Jumlah (Rp)" required>
+                    <input type="date" id="date" required>
+                    <button type="submit">Tambah Transaksi</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h3>Riwayat Transaksi</h3>
+                <table id="transactionTable">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Deskripsi</th>
+                            <th>Tipe</th>
+                            <th>Jumlah (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Grafik Distribusi Pengeluaran per Kategori</h3>
+            <canvas id="pieChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Grafik Tren Keuangan Bulanan</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        let transactions = [];
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const ctxLine = document.getElementById('lineChart').getContext('2d');
+        
+        let pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0', '#f39c12'] 
+                }] 
+            },
+            options: { 
+                plugins: { 
+                    legend: { position: 'bottom' } 
+                } 
+            }
+        });
+        
+        let lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { 
+                        label: 'Pemasukan (Rp)', 
+                        data: [], 
+                        borderColor: '#4caf50', 
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)', 
+                        fill: true 
+                    },
+                    { 
+                        label: 'Pengeluaran (Rp)', 
+                        data: [], 
+                        borderColor: '#f44336', 
+                        backgroundColor: 'rgba(244, 67, 54, 0.2)', 
+                        fill: true 
+                    }
+                ]
+            },
+            options: { 
+                scales: { 
+                    y: { beginAtZero: true } 
+                } 
+            }
+        });
+        
+        document.getElementById('transactionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const type = document.getElementById('type').value;
+            const description = document.getElementById('description').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const date = document.getElementById('date').value;
+            
+            transactions.push({ type, description, amount, date });
+            updateTable();
+            updateCharts();
+            updateSummary();
+            
+            // Reset form
+            document.getElementById('type').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('date').value = '';
+        });
+        
+        function updateTable() {
+            const tbody = document.querySelector('#transactionTable tbody');
+            tbody.innerHTML = '';
+            transactions.forEach(trans => {
+                const row = `<tr><td>${trans.date}</td><td>${trans.description}</td><td>${trans.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${trans.amount}</td></tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        function updateCharts() {
+            // Pie chart: Distribusi pengeluaran per kategori (dari deskripsi)
+            const expenseCategories = {};
+            transactions.filter(t => t.type === 'expense').forEach(trans => {
+                const category = trans.description.split(' ')[0]; // Sederhana: ambil kata pertama sebagai kategori
+                expenseCategories[category] = (expenseCategories[category] || 0) + trans.amount;
+            });
+            pieChart.data.labels = Object.keys(expenseCategories);
+            pieChart.data.datasets[0].data = Object.values(expenseCategories);
+            pieChart.update();
+            
+            // Line chart: Tren bulanan (asumsi data bulanan)
+            const monthlyData = { income: {}, expense: {} };
+            transactions.forEach(trans => {
+                const month = trans.date.slice(0, 7); // YYYY-MM
+                if (!monthlyData[trans.type][month]) monthlyData[trans.type][month] = 0;
+                monthlyData[trans.type][month] += trans.amount;
+            });
+            const months = [...new Set(Object.keys(monthlyData.income).concat(Object.keys(monthlyData.expense)))].sort();
+            lineChart.data.labels = months;
+            lineChart.data.datasets[0].data = months.map(m => monthlyData.income[m] || 0);
+            lineChart.data.datasets[1].data = months.map(m => monthlyData.expense[m] || 0);
+            lineChart.update();
+        }
+        
+        function updateSummary() {
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const netBalance = totalIncome - totalExpense;
+            
+            document.getElementById('totalIncome').textContent = totalIncome.toLocaleString() + ' Rp';
+            document.getElementById('totalExpense').textContent = totalExpense.toLocaleString() + ' Rp';
+            document.getElementById('netBalance').textContent = netBalance.toLocaleString() + ' Rp';
+        }
+    </script>
+</body>
+</html>
