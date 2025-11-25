@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengatur Keuangan PKL Aesthetic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: #333; 
+            min-height: 100vh; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: rgba(255, 255, 255, 0.95); 
+            border-radius: 15px; 
+            padding: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+        }
+        h1 { 
+            color: #5a4fcf; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            font-weight: 600; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .budget { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        }
+        .budget input { 
+            padding: 10px; 
+            border: none; 
+            border-radius: 5px; 
+            margin-left: 10px; 
+            font-size: 16px; 
+        }
+        form { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            background: #f9f9f9; 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        }
+        form label { 
+            flex: 1; 
+            min-width: 200px; 
+        }
+        form input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            transition: border-color 0.3s; 
+        }
+        form input:focus { 
+            border-color: #667eea; 
+            outline: none; 
+        }
+        button { 
+            padding: 12px 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: transform 0.2s; 
+        }
+        button:hover { 
+            transform: translateY(-2px); 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 30px; 
+            background: white; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        }
+        th, td { 
+            padding: 15px; 
+            text-align: left; 
+            border-bottom: 1px solid #eee; 
+        }
+        th { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            font-weight: 600; 
+        }
+        tr:hover { 
+            background: #f5f5f5; 
+        }
+        .chart-container { 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 30px auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        }
+        .chart-container p { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            font-weight: 600; 
+            color: #5a4fcf; 
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Pengatur Keuangan PKL Aesthetic</h1>
+        <div class="budget">
+            <label>Target Anggaran Bulanan: <input type="number" id="budget" placeholder="Masukkan target (Rp)"></label>
+            <p>Sisa Anggaran: <span id="remaining">0</span> Rp</p>
+        </div>
+        
+        <form id="expenseForm">
+            <label>Kategori: <input type="text" id="category" placeholder="e.g., Makanan, Transport" required></label>
+            <label>Jumlah (Rp): <input type="number" id="amount" required></label>
+            <label>Tanggal: <input type="date" id="date" required></label>
+            <button type="submit">Tambah Pengeluaran</button>
+        </form>
+        
+        <table id="expenseTable">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Kategori</th>
+                    <th>Jumlah (Rp)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        
+        <div class="chart-container">
+            <p>Grafik Distribusi Kategori</p>
+            <canvas id="pieChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <p>Grafik Pengeluaran Harian (7 Hari Terakhir)</p>
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        let expenses = [];
+        let budget = 0;
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        
+        let pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0'] 
+                }] 
+            },
+            options: { 
+                plugins: { 
+                    legend: { position: 'bottom' } 
+                } 
+            }
+        });
+        
+        let barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{ 
+                    label: 'Pengeluaran (Rp)', 
+                    data: [], 
+                    backgroundColor: '#667eea' 
+                }]
+            },
+            options: { 
+                scales: { 
+                    y: { beginAtZero: true } 
+                } 
+            }
+        });
+        
+        document.getElementById('budget').addEventListener('input', (e) => {
+            budget = parseInt(e.target.value) || 0;
+            updateRemaining();
+        });
+        
+        document.getElementById('expenseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const category = document.getElementById('category').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const date = document.getElementById('date').value;
+            
+            expenses.push({ category, amount, date });
+            updateTable();
+            updateCharts();
+            updateRemaining();
+            
+            // Reset form
+            document.getElementById('category').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('date').value = '';
+        });
+        
+        function updateTable() {
+            const tbody = document.querySelector('#expenseTable tbody');
+            tbody.innerHTML = '';
+            expenses.forEach(exp => {
+                const row = `<tr><td>${exp.date}</td><td>${exp.category}</td><td>${exp.amount}</td></tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        function updateCharts() {
+            // Pie chart: Distribusi kategori
+            const categoryTotals = {};
+            expenses.forEach(exp => {
+                categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+            });
+            pieChart.data.labels = Object.keys(categoryTotals);
+            pieChart.data.datasets[0].data = Object.values(categoryTotals);
+            pieChart.update();
+            
+            // Bar chart: Pengeluaran harian (7 hari terakhir)
+            const last7Days = {};
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                last7Days[dateStr] = 0;
+            }
+            expenses.forEach(exp => {
+                if (last7Days.hasOwnProperty(exp.date)) {
+                    last7Days[exp.date] += exp.amount;
+                }
+            });
+            barChart.data.labels = Object.keys(last7Days);
+            barChart.data.datasets[0].data = Object.values(last7Days);
+            barChart.update();
+        }
+        
+        function updateRemaining() {
+            const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            document.getElementById('remaining').textContent = budget - totalSpent;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Keuangan PKL - Dinas Tenaga Kerja & Transmigrasi Kabupaten Wajo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); 
+            color: #333; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+        }
+        .navbar { 
+            background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+        }
+        .navbar-brand { 
+            font-weight: 700; 
+            font-size: 1.5em; 
+            color: white !important; 
+        }
+        .hero { 
+            background: url('https://via.placeholder.com/1920x600/1976d2/ffffff?text=Dinas+Tenaga+Kerja+%26+Transmigrasi+Kabupaten+Wajo') no-repeat center/cover; 
+            height: 300px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.7); 
+        }
+        .hero h1 { 
+            font-size: 3em; 
+            margin: 0; 
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 30px auto; 
+            padding: 0 15px; 
+        }
+        .summary .card { 
+            border: none; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            transition: all 0.4s ease; 
+            background: white; 
+        }
+        .summary .card:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3); 
+        }
+        .summary .card i { 
+            font-size: 3em; 
+            margin-bottom: 15px; 
+        }
+        .card { 
+            border: none; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            transition: all 0.3s ease; 
+            background: white; 
+        }
+        .card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 12px 35px rgba(0,0,0,0.25); 
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); 
+            border: none; 
+            border-radius: 10px; 
+            padding: 12px 20px; 
+            font-weight: 500; 
+            transition: all 0.3s ease; 
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4); 
+        }
+        .table { 
+            border-radius: 15px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        .table thead th { 
+            background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); 
+            color: white; 
+            border: none; 
+        }
+        .chart-container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            margin-bottom: 30px; 
+        }
+        .footer { 
+            background: #1976d2; 
+            color: white; 
+            text-align: center; 
+            padding: 20px; 
+            margin-top: 50px; 
+            border-radius: 20px 20px 0 0; 
+        }
+        .search-bar { 
+            margin-bottom: 20px; 
+        }
+        .search-bar input { 
+            border-radius: 10px; 
+            border: 2px solid #ddd; 
+            padding: 10px; 
+        }
+        .modal-content { 
+            border-radius: 20px; 
+        }
+        @media (max-width: 768px) { 
+            .hero h1 { font-size: 2em; } 
+            .summary { grid-template-columns: 1fr !important; } 
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-chart-line"></i> Dashboard PKL Keuangan</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link text-white" href="#summary">Ringkasan</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="#transactions">Transaksi</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="#charts">Grafik</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div>
+            <h1>KEUANGAN DISNAKERTRANS</h1>
+            <p>Dinas Tenaga Kerja dan Transmigrasi Kabupaten Wajo - Bidang Keuangan</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="summary" class="row summary mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card text-center p-4">
+                    <i class="fas fa-arrow-up text-success"></i>
+                    <h5>Total Pemasukan</h5>
+                    <h3 id="totalIncome" class="text-success">0 Rp</h3>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-center p-4">
+                    <i class="fas fa-arrow-down text-danger"></i>
+                    <h5>Total Pengeluaran</h5>
+                    <h3 id="totalExpense" class="text-danger">0 Rp</h3>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-center p-4">
+                    <i class="fas fa-balance-scale text-primary"></i>
+                    <h5>Saldo Bersih</h5>
+                    <h3 id="netBalance" class="text-primary">0 Rp</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="transactions" class="row mb-5">
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h5><i class="fas fa-plus-circle"></i> Tambah Transaksi</h5>
+                    <form id="transactionForm">
+                        <div class="mb-3">
+                            <select class="form-select" id="type" required>
+                                <option value="">Pilih Tipe</option>
+                                <option value="income">Pemasukan</option>
+                                <option value="expense">Pengeluaran</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="description" placeholder="Deskripsi" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" class="form-control" id="amount" placeholder="Jumlah (Rp)" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Tambah Transaksi</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card p-4">
+                    <h5><i class="fas fa-history"></i> Riwayat Transaksi</h5>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Cari transaksi...">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="transactionTable">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Deskripsi</th>
+                                    <th>Tipe</th>
+                                    <th>Jumlah (Rp)</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-secondary mt-3" onclick="exportToCSV()">Export ke CSV</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="charts" class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="text-center"><i class="fas fa-chart-pie"></i> Distribusi Pengeluaran</h5>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="text-center"><i class="fas fa-chart-line"></i> Tren Bulanan</h5>
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; Dinas Tenaga Kerja & Transmigrasi Kabupaten Wajo | <a href="#" class="text-white" data-bs-toggle="modal" data-bs-target="#aboutModal">Tentang</a></p>
+    </div>
+
+    <!-- Modal Tentang -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tentang Dashboard</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Dashboard ini dirancang khusus untuk PKL di bidang keuangan Dinas Tenaga Kerja & Transmigrasi Kabupaten Wajo. Fitur meliputi tracking transaksi, visualisasi data, dan export laporan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let transactions = [];
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const ctxLine = document.getElementById('lineChart').getContext('2d');
+        
+        let pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0', '#f39c12'] 
+                }] 
+            },
+            options: { 
+                plugins: { 
+                    legend: { position: 'bottom' } 
+                } 
+            }
+        });
+        
+        let lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { 
+                        label: 'Pemasukan (Rp)', 
+                        data: [], 
+                        borderColor: '#4caf50', 
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)', 
+                        fill: true 
+                    },
+                    { 
+                        label: 'Pengeluaran (Rp)', 
+                        data: [], 
+                        borderColor: '#f44336', 
+                        backgroundColor: 'rgba(244, 67, 54, 0.2)', 
+                        fill: true 
+                    }
+                ]
+            },
+            options: { 
+                scales: { 
+                    y: { beginAtZero: true } 
+                } 
+            }
+        });
+        
+        document.getElementById('transactionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const type = document.getElementById('type').value;
+            const description = document.getElementById('description').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const date = document.getElementById('date').value;
+            
+            transactions.push({ type, description, amount, date });
+            updateTable();
+            updateCharts();
+            updateSummary();
+            
+            // Reset form
+            document.getElementById('type').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('date').value = '';
+        });
+        
+        document.getElementById('searchInput').addEventListener('input', filterTable);
+        
+        function updateTable() {
+            const tbody = document.querySelector('#transactionTable tbody');
+            tbody.innerHTML = '';
+            transactions.forEach((trans, index) => {
+                const row = `<tr>
+                    <td>${trans.date}</td>
+                    <td>${trans.description}</td>
+                    <td>${trans.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
+                    <td>${trans.amount.toLocaleString()}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="deleteTransaction(${index})">Hapus</button></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#transactionTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+        
+        function deleteTransaction(index) {
+            transactions.splice(index, 1);
+            updateTable();
+            updateCharts();
+            updateSummary();
+        }
+        
+        function exportToCSV() {
+            let csv = 'Tanggal,Deskripsi,Tipe,Jumlah\n';
+            transactions.forEach(trans => {
+                csv += `${trans.date},${trans.description},${trans.type === 'income' ? 'Pemasukan' : 'Pengeluaran'},${trans.amount}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transaksi-keuangan.csv';
+            a.click();
+        }
+        
+        function updateCharts() {
+            const expenseCategories = {};
+            transactions.filter(t => t.type === 'expense').forEach(trans => {
+                const category = trans.description.split(' ')[0];
+                expenseCategories[category] = (expenseCategories[category] || 0) + trans.amount;
+            });
+            pieChart.data.labels = Object.keys(expenseCategories);
+            pieChart.data.datasets[0].data = Object.values(expenseCategories);
+            pieChart.update();
+            
+            const monthlyData = { income: {}, expense: {} };
+            transactions.forEach(trans => {
+                const month = trans.date.slice(0, 7);
+                if (!monthlyData[trans.type][month]) monthlyData[trans.type][month] = 0;
+                monthlyData[trans.type][month] += trans.amount;
+            });
+            const months = [...new Set(Object.keys(monthlyData.income).concat(Object.keys(monthlyData.expense)))].sort();
+            lineChart.data.labels = months;
+            lineChart.data.datasets[0].data = months.map(m => monthlyData.income[m] || 0);
+            lineChart.data.datasets[1].data = months.map(m => monthlyData.expense[m] || 0);
+            lineChart.update();
+        }
+        
+        function updateSummary() {
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const netBalance = totalIncome - totalExpense;
+            
+            document.getElementById('totalIncome').textContent = totalIncome.toLocaleString() + ' Rp';
+            document.getElementById('totalExpense').textContent = totalExpense.toLocaleString() + ' Rp';
+            document.getElementById('netBalance').textContent = netBalance.toLocaleString() + ' Rp';
+        }
+    </script>
+</body>
+</html>
